@@ -1,8 +1,8 @@
 package calculation
 
 import (
-	"fmt"
 	"strconv"
+	"unicode"
 )
 
 type TokenType int
@@ -32,7 +32,7 @@ func precedence(op string) int {
 	}
 }
 
-func infixToPostfix(infix string) []Token {
+func infixToPostfix(infix string) ([]Token, error) {
 	var output []Token
 	var operators []string
 
@@ -52,8 +52,10 @@ func infixToPostfix(infix string) []Token {
 				operators = operators[:len(operators)-1]
 			}
 			operators = operators[:len(operators)-1]
-		} else {
+		} else if unicode.IsDigit(rune(char)) {
 			output = append(output, Token{TOKEN_NUMBER, token})
+		} else {
+			return nil, ErrUnexpectedToken
 		}
 	}
 
@@ -62,7 +64,7 @@ func infixToPostfix(infix string) []Token {
 		operators = operators[:len(operators)-1]
 	}
 
-	return output
+	return output, nil
 }
 
 func evaluatePostfix(postfix []Token) (float64, error) {
@@ -72,12 +74,12 @@ func evaluatePostfix(postfix []Token) (float64, error) {
 		if token.Type == TOKEN_NUMBER {
 			num, err := strconv.ParseFloat(token.Value, 64)
 			if err != nil {
-				return 0, err
+				return 0, ErrInvalidNumber
 			}
 			stack = append(stack, num)
 		} else {
 			if len(stack) < 2 {
-				return 0, ErrInvalidExpression
+				return 0, ErrNotEnoughValues
 			}
 			b := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
@@ -93,19 +95,27 @@ func evaluatePostfix(postfix []Token) (float64, error) {
 			case "*":
 				result = a * b
 			case "/":
+				if b == 0 {
+					return 0, ErrDivisionByZero
+				}
 				result = a / b
+			default:
+				return 0, ErrInvalidOperator
 			}
 			stack = append(stack, result)
 		}
 	}
 
 	if len(stack) != 1 {
-		return 0, fmt.Errorf("invalid expression")
+		return 0, ErrInvalidExpression
 	}
 	return stack[0], nil
 }
 
 func Calc(expression string) (float64, error) {
-	postfix := infixToPostfix(expression)
+	if expression == "" {
+		return 0, ErrEmptyInput
+	}
+	postfix, _ := infixToPostfix(expression)
 	return evaluatePostfix(postfix)
 }

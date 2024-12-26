@@ -2,9 +2,9 @@ package application
 
 import (
 	"bufio"
+	"calc_go/pkg/calculation"
 	"encoding/json"
 	"fmt"
-	"github.com/pollymo/calc_go/pkg"
 	"log"
 	"net/http"
 	"os"
@@ -48,7 +48,7 @@ func (app *Application) Run() error {
 			log.Println("application was successfully exited")
 		}
 
-		result, err := pkg.Calc(text)
+		result, err := calculation.Calc(text)
 		if err != nil {
 			log.Println(text, "error calculation with error", err)
 		} else {
@@ -81,31 +81,25 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := pkg.Calc(request.Expression)
+	result, err := calculation.Calc(request.Expression)
 	if err != nil {
 		var errorMsg string
 		statusCode := http.StatusUnprocessableEntity
 
 		switch err {
-		case pkg.ErrInvalidExpression:
+		case calculation.ErrInvalidExpression:
 			errorMsg = "Error calculation"
-		case pkg.ErrDivisionByZero:
+		case calculation.ErrDivisionByZero:
 			errorMsg = "Division by zero"
-		case pkg.ErrMismatchedParentheses:
-			errorMsg = "Mismatched parentheses"
-		case pkg.ErrInvalidNumber:
+		case calculation.ErrInvalidNumber:
 			errorMsg = "Invalid number"
-		case pkg.ErrUnexpectedToken:
+		case calculation.ErrUnexpectedToken:
 			errorMsg = "Unexpected token"
-		case pkg.ErrNotEnoughValues:
+		case calculation.ErrNotEnoughValues:
 			errorMsg = "Not enough values"
-		case pkg.ErrInvalidOperator:
+		case calculation.ErrInvalidOperator:
 			errorMsg = "Invalid operator"
-		case pkg.ErrOperatorAtEnd:
-			errorMsg = "Operator at end"
-		case pkg.ErrMultipleDecimalPoints:
-			errorMsg = "Multiple decimal points"
-		case pkg.ErrEmptyInput:
+		case calculation.ErrEmptyInput:
 			errorMsg = "Empty input"
 		default:
 			errorMsg = "Error calculation"
