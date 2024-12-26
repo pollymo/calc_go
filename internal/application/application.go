@@ -1,16 +1,15 @@
-package internal
+package application
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/pollymo/calc_go/pkg"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-
-	"calc_go/pkg"
 )
 
 type Config struct {
