@@ -1,6 +1,10 @@
 package main
 
+import (
+	"calc_go/internal"
+)
+
 func main() {
-	app := application.NewApplication()
+	app := internal.NewApplication()
 	app.RunServer()
 }

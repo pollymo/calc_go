@@ -77,7 +77,7 @@ func evaluatePostfix(postfix []Token) (float64, error) {
 			stack = append(stack, num)
 		} else {
 			if len(stack) < 2 {
-				return 0, fmt.Errorf("invalid expression")
+				return 0, ErrInvalidExpression
 			}
 			b := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
